@@ -1,0 +1,566 @@
+// Feed functionality
+class Feed {
+    constructor() {
+        this.posts = [];
+        this.currentPage = 1;
+        this.hasMore = true;
+        this.currentFilter = 'all';
+        this.isLoading = false;
+    }
+    
+    async init() {
+        try {
+            // Check authentication
+            auth.checkAuth();
+            
+            // Load user data
+            await this.loadUserData();
+            
+            // Load initial posts
+            await this.loadPosts();
+            
+            // Setup event listeners
+            this.setupEventListeners();
+            
+        } catch (error) {
+            console.error('Feed initialization error:', error);
+            auth.redirectToLogin();
+        }
+    }
+    
+    async loadUserData() {
+        try {
+            const userData = await api.getProfile();
+            this.user = userData;
+            this.updateUserInterface();
+        } catch (error) {
+            console.error('Error loading user data:', error);
+            this.user = auth.getUser();
+            this.updateUserInterface();
+        }
+    }
+    
+    updateUserInterface() {
+        // Update user name
+        const userNameElement = document.getElementById('user-name');
+        const userName = this.user?.nome || this.user?.username || 'Usuário';
+        userNameElement.textContent = userName;
+        
+        // Update user avatar
+        const userAvatar = document.getElementById('current-user-avatar');
+        if (this.user?.foto_url) {
+            userAvatar.innerHTML = `<img src="${this.user.foto_url}" alt="${userName}">`;
+        }
+    }
+    
+    async loadPosts(loadMore = false) {
+        if (this.isLoading) return;
+        
+        this.isLoading = true;
+        
+        try {
+            if (!loadMore) {
+                this.currentPage = 1;
+                this.posts = [];
+                this.showLoading();
+            }
+            
+            const filters = {
+                page: this.currentPage,
+                limit: 10,
+                order: 'desc',
+                filter: this.currentFilter
+            };
+            
+            const response = await api.getPosts(filters);
+            const newPosts = response.posts || response;
+            
+            if (loadMore) {
+                this.posts = [...this.posts, ...newPosts];
+            } else {
+                this.posts = newPosts;
+            }
+            
+            this.hasMore = newPosts.length === filters.limit;
+            this.renderPosts();
+            
+            if (loadMore) {
+                this.currentPage++;
+            }
+            
+        } catch (error) {
+            console.error('Error loading posts:', error);
+            this.showError('Erro ao carregar posts');
+        } finally {
+            this.isLoading = false;
+            this.hideLoading();
+        }
+    }
+    
+    renderPosts() {
+        const container = document.getElementById('posts-container');
+        
+        if (this.posts.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-newspaper" style="font-size: 3rem; margin-bottom: 1rem; color: var(--text-muted);"></i>
+                    <h3>Nenhum post ainda</h3>
+                    <p>Seja o primeiro a compartilhar algo!</p>
+                </div>
+            `;
+            return;
+        }
+        
+        const postsHtml = this.posts.map(post => this.createPostHtml(post)).join('');
+        container.innerHTML = postsHtml;
+        
+        // Update load more button
+        this.updateLoadMoreButton();
+    }
+    
+    createPostHtml(post) {
+        const postDate = this.formatPostDate(post.criado_em);
+        const likesCount = post.reacoes || 0;
+        const commentsCount = post.comentarios || 0;
+        const isLiked = post.userReaction || false;
+        
+        return `
+            <div class="post-card" data-post-id="${post.id_post}">
+                <div class="post-header">
+                    <div class="author-avatar">
+                        ${post.autor?.foto_url ? 
+                            `<img src="${post.autor.foto_url}" alt="${post.autor.nome}">` : 
+                            `<i class="fas fa-user"></i>`
+                        }
+                    </div>
+                    <div class="post-author-info">
+                        <div class="post-author-name">${post.autor?.nome || 'Usuário'}</div>
+                        <div class="post-meta">
+                            <span>${postDate}</span>
+                            <span> • </span>
+                            <span class="post-visibility">${post.visibilidade || 'Turma'}</span>
+                        </div>
+                    </div>
+                    <div class="post-type-badge">
+                        ${this.getPostTypeText(post.tipo)}
+                    </div>
+                </div>
+                
+                <div class="post-content">
+                    ${post.titulo ? `<h3 class="post-title">${post.titulo}</h3>` : ''}
+                    <div class="post-text">${post.conteudo}</div>
+                    
+                    ${post.arquivos && post.arquivos.length > 0 ? `
+                        <div class="post-attachments">
+                            <div class="attachment-grid">
+                                ${post.arquivos.map(arquivo => `
+                                    <div class="attachment-item" onclick="viewAttachment('${arquivo.caminho}')">
+                                        <div class="attachment-icon">
+                                            <i class="fas fa-${this.getFileIcon(arquivo.tipo_arquivo)}"></i>
+                                        </div>
+                                        <div class="attachment-name">${arquivo.nome_original}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+                
+                <div class="post-stats">
+                    <span>${likesCount} curtida${likesCount !== 1 ? 's' : ''}</span>
+                    <span>${commentsCount} comentário${commentsCount !== 1 ? 's' : ''}</span>
+                </div>
+                
+                <div class="post-actions">
+                    <button class="post-action-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike(${post.id_post})">
+                        <i class="fas fa-thumbs-up"></i>
+                        Curtir
+                    </button>
+                    <button class="post-action-btn" onclick="toggleComments(${post.id_post})">
+                        <i class="fas fa-comment"></i>
+                        Comentar
+                    </button>
+                    <button class="post-action-btn" onclick="sharePost(${post.id_post})">
+                        <i class="fas fa-share"></i>
+                        Compartilhar
+                    </button>
+                </div>
+                
+                <div class="comments-section" id="comments-${post.id_post}" style="display: none;">
+                    <div class="comment-form">
+                        <textarea 
+                            class="comment-input" 
+                            placeholder="Escreva um comentário..."
+                            id="comment-input-${post.id_post}"
+                        ></textarea>
+                        <button class="comment-submit" onclick="submitComment(${post.id_post})">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <div class="comments-list" id="comments-list-${post.id_post}">
+                        <!-- Comments will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    async loadComments(postId) {
+        try {
+            const comments = await api.getComments(postId);
+            this.renderComments(postId, comments);
+        } catch (error) {
+            console.error('Error loading comments:', error);
+        }
+    }
+    
+    renderComments(postId, comments) {
+        const container = document.getElementById(`comments-list-${postId}`);
+        
+        if (!comments || comments.length === 0) {
+            container.innerHTML = '<div class="empty-state">Nenhum comentário ainda</div>';
+            return;
+        }
+        
+        const commentsHtml = comments.map(comment => `
+            <div class="comment-item">
+                <div class="comment-avatar">
+                    ${comment.autor?.foto_url ? 
+                        `<img src="${comment.autor.foto_url}" alt="${comment.autor.nome}">` : 
+                        `<i class="fas fa-user"></i>`
+                    }
+                </div>
+                <div class="comment-content">
+                    <div class="comment-header">
+                        <span class="comment-author">${comment.autor?.nome || 'Usuário'}</span>
+                        <span class="comment-time">${this.formatPostDate(comment.criado_em)}</span>
+                    </div>
+                    <div class="comment-text">${comment.conteudo}</div>
+                    <div class="comment-actions">
+                        <button class="comment-action" onclick="toggleCommentLike(${comment.id_comentario})">
+                            <i class="fas fa-thumbs-up"></i>
+                            Curtir
+                        </button>
+                        <button class="comment-action" onclick="replyToComment(${comment.id_comentario})">
+                            <i class="fas fa-reply"></i>
+                            Responder
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+        
+        container.innerHTML = commentsHtml;
+    }
+    
+    async createPost(postData) {
+        try {
+            const newPost = await api.createPost(postData);
+            
+            // Add new post to the beginning of the list
+            this.posts.unshift(newPost);
+            this.renderPosts();
+            
+            // Show success message
+            auth.showNotification('Post criado com sucesso!', 'success');
+            
+            return newPost;
+        } catch (error) {
+            console.error('Error creating post:', error);
+            auth.showNotification('Erro ao criar post', 'error');
+            throw error;
+        }
+    }
+    
+    async submitComment(postId, content) {
+        try {
+            const comment = await api.createComment(postId, { conteudo: content });
+            
+            // Reload comments for this post
+            await this.loadComments(postId);
+            
+            // Clear comment input
+            document.getElementById(`comment-input-${postId}`).value = '';
+            
+            return comment;
+        } catch (error) {
+            console.error('Error submitting comment:', error);
+            auth.showNotification('Erro ao enviar comentário', 'error');
+            throw error;
+        }
+    }
+    
+    // Utility methods
+    getPostTypeText(type) {
+        const types = {
+            'Discussao': 'Discussão',
+            'Duvida': 'Dúvida',
+            'Material': 'Material',
+            'Anuncio': 'Anúncio',
+            'Evento': 'Evento',
+            'Trabalho': 'Trabalho'
+        };
+        return types[type] || type;
+    }
+    
+    getFileIcon(fileType) {
+        if (!fileType) return 'file';
+        
+        const icons = {
+            'pdf': 'file-pdf',
+            'doc': 'file-word',
+            'docx': 'file-word',
+            'jpg': 'file-image',
+            'jpeg': 'file-image',
+            'png': 'file-image',
+            'zip': 'file-archive'
+        };
+        
+        const extension = fileType.split('/').pop().toLowerCase();
+        return icons[extension] || 'file';
+    }
+    
+    formatPostDate(dateString) {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffMs = now - date;
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMs / 3600000);
+        const diffDays = Math.floor(diffMs / 86400000);
+        
+        if (diffMins < 1) {
+            return 'Agora';
+        } else if (diffMins < 60) {
+            return `${diffMins} min atrás`;
+        } else if (diffHours < 24) {
+            return `${diffHours} h atrás`;
+        } else if (diffDays < 7) {
+            return `${diffDays} dias atrás`;
+        } else {
+            return date.toLocaleDateString('pt-BR');
+        }
+    }
+    
+    showLoading() {
+        const container = document.getElementById('posts-container');
+        container.innerHTML = '<div class="loading">Carregando posts...</div>';
+    }
+    
+    hideLoading() {
+        // Loading state is handled by renderPosts
+    }
+    
+    showError(message) {
+        const container = document.getElementById('posts-container');
+        container.innerHTML = `<div class="error-state">${message}</div>`;
+    }
+    
+    updateLoadMoreButton() {
+        const loadMoreBtn = document.getElementById('load-more-btn');
+        if (loadMoreBtn) {
+            loadMoreBtn.style.display = this.hasMore ? 'block' : 'none';
+        }
+    }
+    
+    setupEventListeners() {
+        // Filter buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const filter = e.target.dataset.filter;
+                this.setFilter(filter);
+            });
+        });
+        
+        // Create post form
+        const createPostForm = document.getElementById('create-post-form');
+        if (createPostForm) {
+            createPostForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.handleCreatePost();
+            });
+        }
+        
+        // File upload
+        this.setupFileUpload();
+        
+        // User menu
+        this.setupUserMenu();
+    }
+    
+    setFilter(filter) {
+        // Update active filter button
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.filter === filter);
+        });
+        
+        this.currentFilter = filter;
+        this.loadPosts();
+    }
+    
+    setupFileUpload() {
+        const fileInput = document.getElementById('file-input');
+        const uploadArea = document.getElementById('file-upload-area');
+        const selectedFiles = document.getElementById('selected-files');
+        
+        if (uploadArea && fileInput) {
+            // Click to select files
+            uploadArea.addEventListener('click', () => {
+                fileInput.click();
+            });
+            
+            // Drag and drop
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+            
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                this.handleFiles(e.dataTransfer.files);
+            });
+            
+            // File input change
+            fileInput.addEventListener('change', (e) => {
+                this.handleFiles(e.target.files);
+            });
+        }
+    }
+    
+    handleFiles(files) {
+        const selectedFiles = document.getElementById('selected-files');
+        selectedFiles.innerHTML = '';
+        
+        Array.from(files).forEach(file => {
+            const fileItem = this.createFileItem(file);
+            selectedFiles.appendChild(fileItem);
+        });
+    }
+    
+    createFileItem(file) {
+        const div = document.createElement('div');
+        div.className = 'file-item';
+        div.innerHTML = `
+            <div class="file-icon">
+                <i class="fas fa-${this.getFileIcon(file.type)}"></i>
+            </div>
+            <div class="file-info">
+                <div class="file-name">${file.name}</div>
+                <div class="file-size">${this.formatFileSize(file.size)}</div>
+            </div>
+            <button class="file-remove" onclick="this.parentElement.remove()">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        return div;
+    }
+    
+    formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+    
+    async handleCreatePost() {
+        const form = document.getElementById('create-post-form');
+        const formData = new FormData(form);
+        
+        const postData = {
+            titulo: document.getElementById('post-title').value,
+            conteudo: document.getElementById('post-content').value,
+            tipo: document.getElementById('post-type').value,
+            visibilidade: document.getElementById('post-visibility').value
+        };
+        
+        try {
+            await this.createPost(postData);
+            closeCreatePostModal();
+            form.reset();
+            document.getElementById('selected-files').innerHTML = '';
+        } catch (error) {
+            console.error('Error creating post:', error);
+        }
+    }
+    
+    setupUserMenu() {
+        const userMenuBtn = document.getElementById('user-menu-btn');
+        const userDropdown = document.getElementById('user-dropdown');
+        
+        if (userMenuBtn && userDropdown) {
+            userMenuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                userDropdown.classList.toggle('show');
+            });
+            
+            document.addEventListener('click', () => {
+                userDropdown.classList.remove('show');
+            });
+        }
+    }
+}
+
+// Global functions for HTML event handlers
+function openCreatePostModal() {
+    document.getElementById('create-post-modal').classList.add('show');
+}
+
+function closeCreatePostModal() {
+    document.getElementById('create-post-modal').classList.remove('show');
+}
+
+async function toggleLike(postId) {
+    try {
+        // Implement like functionality
+        const btn = document.querySelector(`[data-post-id="${postId}"] .post-action-btn`);
+        btn.classList.toggle('liked');
+        
+        // Update like count
+        const stats = document.querySelector(`[data-post-id="${postId}"] .post-stats`);
+        // This would call your API to like/unlike
+    } catch (error) {
+        console.error('Error toggling like:', error);
+    }
+}
+
+async function toggleComments(postId) {
+    const commentsSection = document.getElementById(`comments-${postId}`);
+    const isVisible = commentsSection.style.display !== 'none';
+    
+    if (!isVisible) {
+        commentsSection.style.display = 'block';
+        await feed.loadComments(postId);
+    } else {
+        commentsSection.style.display = 'none';
+    }
+}
+
+async function submitComment(postId) {
+    const input = document.getElementById(`comment-input-${postId}`);
+    const content = input.value.trim();
+    
+    if (content) {
+        await feed.submitComment(postId, content);
+    }
+}
+
+function viewAttachment(filePath) {
+    // Implement file viewer
+    window.open(filePath, '_blank');
+}
+
+function sharePost(postId) {
+    // Implement share functionality
+    auth.showNotification('Funcionalidade de compartilhamento em desenvolvimento', 'info');
+}
+
+// Initialize feed when page loads
+const feed = new Feed();
+document.addEventListener('DOMContentLoaded', () => {
+    feed.init();
+});

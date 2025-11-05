@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evolution - Plataforma Escolar Inteligente</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/accessibility.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Skip Navigation for Accessibility -->
+    <a href="#main-content" class="skip-nav">Pular para o conteúdo principal</a>
+
+    <!-- Accessibility Quick Menu -->
+    <div id="accessibility-menu" class="accessibility-menu">
+        <button class="accessibility-toggle" onclick="toggleAccessibilityMenu()">
+            <i class="fas fa-universal-access"></i>
+        </button>
+        <div class="accessibility-panel" id="accessibility-panel">
+            <h3>Configurações de Acessibilidade</h3>
+            <div class="accessibility-options">
+                <div class="option-group">
+                    <label>Tema:</label>
+                    <button onclick="setTheme('light')">Claro</button>
+                    <button onclick="setTheme('dark')">Escuro</button>
+                    <button onclick="setTheme('auto')">Auto</button>
+                </div>
+                <div class="option-group">
+                    <label for="font-size">Tamanho da Fonte:</label>
+                    <select id="font-size" onchange="changeFontSize(this.value)">
+                        <option value="small">Pequeno</option>
+                        <option value="medium" selected>Médio</option>
+                        <option value="large">Grande</option>
+                        <option value="x-large">Muito Grande</option>
+                    </select>
+                </div>
+                <div class="option-group">
+                    <label>
+                        <input type="checkbox" id="high-contrast" onchange="toggleHighContrast(this.checked)">
+                        Alto Contraste
+                    </label>
+                </div>
+                <div class="option-group">
+                    <label>
+                        <input type="checkbox" id="readable-font" onchange="toggleReadableFont(this.checked)">
+                        Fonte Legível
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="nav-brand">
+                <img src="assets/images/logo.png" alt="Evolution Logo" class="logo">
+                <span class="brand-text">Evolution</span>
+            </div>
+            
+            <div class="nav-links" id="nav-links">
+                <a href="#home" class="nav-link active">Início</a>
+                <a href="#features" class="nav-link">Funcionalidades</a>
+                <a href="#about" class="nav-link">Sobre</a>
+                <a href="#contact" class="nav-link">Contato</a>
+            </div>
+
+            <div class="nav-actions">
+                <button class="theme-toggle" onclick="toggleTheme()">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <a href="pages/login.html" class="btn btn-primary">Entrar</a>
+                <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <!-- Hero Section -->
+        <section id="home" class="hero">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    Evoluímos com a 
+                    <span class="gradient-text">onda da tecnologia</span>
+                </h1>
+                <p class="hero-description">
+                    Uma plataforma escolar inteligente que une gestão acadêmica, 
+                    rede social estudantil e acessibilidade em um ambiente digital completo.
+                </p>
+                <div class="hero-actions">
+                    <a href="pages/login.html" class="btn btn-primary btn-large">
+                        Começar Agora
+                    </a>
+                    <a href="#features" class="btn btn-secondary btn-large">
+                        Saiba Mais
+                    </a>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="platform-preview">
+                    <div class="preview-card">
+                        <div class="preview-header">
+                            <div class="window-controls">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+                        </div>
+                        <div class="preview-content">
+                            <div class="feed-item">
+                                <div class="user-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="post-content">
+                                    <h4>Novo trabalho disponível</h4>
+                                    <p>Matemática - Entrega: 15/11</p>
+                                </div>
+                            </div>
+                            <div class="feed-item">
+                                <div class="user-avatar">
+                                    <i class="fas fa-user-graduate"></i>
+                                </div>
+                                <div class="post-content">
+                                    <h4>Aula de Física</h4>
+                                    <p>Sala 203 - 10:00h</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="features">
+            <div class="container">
+                <h2 class="section-title">Funcionalidades Principais</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <h3>Sistema Acadêmico</h3>
+                        <p>Gestão completa de notas, atividades, calendário escolar e acompanhamento de desempenho.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h3>Rede Social Educacional</h3>
+                        <p>Feed interativo, postagens, comentários e colaboração entre alunos e professores.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <h3>Design Responsivo</h3>
+                        <p>Experiência perfeita em todos os dispositivos, com foco em mobile-first.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-universal-access"></i>
+                        </div>
+                        <h3>Acessibilidade Total</h3>
+                        <p>Modo noturno, alto contraste, leitores de tela e personalização completa.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        <h3>Notificações Inteligentes</h3>
+                        <p>Alertas em tempo real para prazos, atividades e comunicados importantes.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h3>Segurança Avançada</h3>
+                        <p>Autenticação JWT, criptografia e controle de acesso baseado em papéis.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="about">
+            <div class="container">
+                <h2 class="section-title">Sobre o Evolution</h2>
+                <div class="about-content">
+                    <div class="about-text">
+                        <p>
+                            O <strong>Evolution</strong> nasceu da necessidade de modernizar o ambiente educacional, 
+                            trazendo tecnologia de ponta para conectar alunos, professores e administradores 
+                            em uma plataforma única e intuitiva.
+                        </p>
+                        <div class="tech-stack">
+                            <h4>Tecnologias Utilizadas:</h4>
+                            <div class="tech-tags">
+                                <span class="tech-tag">React</span>
+                                <span class="tech-tag">Node.js</span>
+                                <span class="tech-tag">MySQL</span>
+                                <span class="tech-tag">Tailwind CSS</span>
+                                <span class="tech-tag">JWT</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="about-stats">
+                        <div class="stat">
+                            <span class="stat-number">100%</span>
+                            <span class="stat-label">Responsivo</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number">Acessível</span>
+                            <span class="stat-label">WCAG 2.1</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number">Moderna</span>
+                            <span class="stat-label">Arquitetura</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <img src="assets/images/logo.png" alt="Evolution Logo" class="footer-logo">
+                    <span class="brand-text">Evolution</span>
+                    <p class="footer-tagline">
+                        Evoluímos com a onda da tecnologia
+                    </p>
+                </div>
+                
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Plataforma</h4>
+                        <a href="#features">Funcionalidades</a>
+                        <a href="#about">Sobre</a>
+                        <a href="pages/login.html">Login</a>
+                    </div>
+                    
+                    <div class="footer-column">
+                        <h4>Suporte</h4>
+                        <a href="#contact">Contato</a>
+                        <a href="#">Documentação</a>
+                        <a href="#">FAQ</a>
+                    </div>
+                    
+                    <div class="footer-column">
+                        <h4>Legal</h4>
+                        <a href="#">Privacidade</a>
+                        <a href="#">Termos</a>
+                        <a href="#">Cookies</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 Evolution. Todos os direitos reservados.</p>
+                <div class="social-links">
+                    <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+                    <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/accessibility.js"></script>
+</body>
+</html>

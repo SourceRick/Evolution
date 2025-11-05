@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Evolution</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/accessibility.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="login-page">
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <img src="../assets/images/logo.png" alt="Evolution Logo" class="login-logo">
+                <h1>Bem-vindo de volta</h1>
+                <p>Entre na sua conta para continuar</p>
+            </div>
+            
+            <form class="login-form" id="login-form">
+                <div class="form-group">
+                    <label for="email">E-mail</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        required 
+                        placeholder="seu@email.com"
+                        autocomplete="email"
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Senha</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        required 
+                        placeholder="Sua senha"
+                        autocomplete="current-password"
+                    >
+                </div>
+                
+                <div class="form-options">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="remember">
+                        <span>Lembrar de mim</span>
+                    </label>
+                    <a href="#" class="forgot-password">Esqueceu a senha?</a>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-large btn-full">
+                    Entrar
+                </button>
+            </form>
+            
+            <div class="login-footer">
+                <p>Não tem uma conta? <a href="#">Solicitar acesso</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/auth.js"></script>
+    <script src="../js/api.js"></script>
+    <script>
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const email = formData.get('email');
+            const password = formData.get('password');
+            
+            try {
+                await auth.login(email, password);
+                window.location.href = 'dashboard.html';
+            } catch (error) {
+                alert('Erro no login. Verifique suas credenciais.');
+            }
+        });
+    </script>
+</body>
+</html>

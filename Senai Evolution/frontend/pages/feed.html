@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feed - Evolution</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/accessibility.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Accessibility Menu -->
+    <div id="accessibility-menu" class="accessibility-menu">
+        <button class="accessibility-toggle" onclick="toggleAccessibilityMenu()">
+            <i class="fas fa-universal-access"></i>
+        </button>
+        <div class="accessibility-panel" id="accessibility-panel">
+            <h3>Configurações de Acessibilidade</h3>
+            <div class="accessibility-options">
+                <div class="option-group">
+                    <label>Tema:</label>
+                    <button onclick="setTheme('light')">Claro</button>
+                    <button onclick="setTheme('dark')">Escuro</button>
+                    <button onclick="setTheme('auto')">Auto</button>
+                </div>
+                <div class="option-group">
+                    <label for="font-size">Tamanho da Fonte:</label>
+                    <select id="font-size" onchange="changeFontSize(this.value)">
+                        <option value="small">Pequeno</option>
+                        <option value="medium" selected>Médio</option>
+                        <option value="large">Grande</option>
+                        <option value="x-large">Muito Grande</option>
+                    </select>
+                </div>
+                <div class="option-group">
+                    <label>
+                        <input type="checkbox" id="high-contrast" onchange="toggleHighContrast(this.checked)">
+                        Alto Contraste
+                    </label>
+                </div>
+                <div class="option-group">
+                    <label>
+                        <input type="checkbox" id="readable-font" onchange="toggleReadableFont(this.checked)">
+                        Fonte Legível
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="nav-brand">
+                <img src="../assets/images/logo.png" alt="Evolution Logo" class="logo">
+                <span class="brand-text">Evolution</span>
+            </div>
+            
+            <div class="nav-links" id="nav-links">
+                <a href="dashboard.html" class="nav-link">Dashboard</a>
+                <a href="activities.html" class="nav-link">Atividades</a>
+                <a href="feed.html" class="nav-link active">Feed</a>
+                <a href="schedule.html" class="nav-link">Agenda</a>
+                <a href="grades.html" class="nav-link">Notas</a>
+            </div>
+
+            <div class="nav-actions">
+                <div class="user-menu">
+                    <button class="user-btn" id="user-menu-btn">
+                        <span id="user-name">Carregando...</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="user-dropdown" id="user-dropdown">
+                        <a href="profile.html" class="dropdown-item">
+                            <i class="fas fa-user"></i> Perfil
+                        </a>
+                        <a href="settings.html" class="dropdown-item">
+                            <i class="fas fa-cog"></i> Configurações
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <button onclick="auth.logout()" class="dropdown-item logout-btn">
+                            <i class="fas fa-sign-out-alt"></i> Sair
+                        </button>
+                    </div>
+                </div>
+                <button class="theme-toggle" onclick="toggleTheme()">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="feed-container">
+            <!-- Create Post Card -->
+            <div class="create-post-card">
+                <div class="post-author">
+                    <div class="author-avatar" id="current-user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <button class="create-post-btn" onclick="openCreatePostModal()">
+                        O que você está pensando?
+                    </button>
+                </div>
+                <div class="post-options">
+                    <button class="post-option-btn" onclick="openCreatePostModal()">
+                        <i class="fas fa-image" style="color: #45bd62;"></i>
+                        Foto
+                    </button>
+                    <button class="post-option-btn" onclick="openCreatePostModal()">
+                        <i class="fas fa-file-alt" style="color: #1877f2;"></i>
+                        Documento
+                    </button>
+                    <button class="post-option-btn" onclick="openCreatePostModal()">
+                        <i class="fas fa-calendar" style="color: #f7b928;"></i>
+                        Evento
+                    </button>
+                </div>
+            </div>
+
+            <!-- Feed Filters -->
+            <div class="feed-filters">
+                <button class="filter-btn active" data-filter="all">Todos</button>
+                <button class="filter-btn" data-filter="turma">Minha Turma</button>
+                <button class="filter-btn" data-filter="curso">Curso</button>
+                <button class="filter-btn" data-filter="following">Seguindo</button>
+            </div>
+
+            <!-- Posts Container -->
+            <div class="posts-container" id="posts-container">
+                <div class="loading">Carregando posts...</div>
+            </div>
+
+            <!-- Load More Button -->
+            <div class="load-more-container">
+                <button class="btn btn-secondary" id="load-more-btn" onclick="loadMorePosts()">
+                    <i class="fas fa-redo"></i>
+                    Carregar Mais
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Create Post Modal -->
+    <div id="create-post-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Criar Publicação</h3>
+                <button class="modal-close" onclick="closeCreatePostModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="create-post-form">
+                    <div class="form-group">
+                        <label for="post-title">Título (opcional)</label>
+                        <input type="text" id="post-title" placeholder="Adicione um título...">
+                    </div>
+                    <div class="form-group">
+                        <label for="post-content">Conteúdo *</label>
+                        <textarea 
+                            id="post-content" 
+                            placeholder="O que você está pensando?" 
+                            rows="5"
+                            required
+                        ></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="post-visibility">Visibilidade</label>
+                        <select id="post-visibility">
+                            <option value="Turma">Turma</option>
+                            <option value="Publico">Público</option>
+                            <option value="Curso">Curso</option>
+                            <option value="Privado">Privado</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="post-type">Tipo de Publicação</label>
+                        <select id="post-type">
+                            <option value="Discussao">Discussão</option>
+                            <option value="Duvida">Dúvida</option>
+                            <option value="Material">Material</option>
+                            <option value="Anuncio">Anúncio</option>
+                            <option value="Evento">Evento</option>
+                            <option value="Trabalho">Trabalho</option>
+                        </select>
+                    </div>
+                    <div class="file-upload-area" id="file-upload-area">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Arraste arquivos aqui ou clique para selecionar</p>
+                        <input type="file" id="file-input" multiple style="display: none;">
+                        <button type="button" class="btn btn-secondary" onclick="document.getElementById('file-input').click()">
+                            Selecionar Arquivos
+                        </button>
+                    </div>
+                    <div class="selected-files" id="selected-files"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeCreatePostModal()">
+                    Cancelar
+                </button>
+                <button type="submit" form="create-post-form" class="btn btn-primary">
+                    <i class="fas fa-paper-plane"></i>
+                    Publicar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/main.js"></script>
+    <script src="../js/theme.js"></script>
+    <script src="../js/accessibility.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="feed.js"></script>
+</body>
+</html>

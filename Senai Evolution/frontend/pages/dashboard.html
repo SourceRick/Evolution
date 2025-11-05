@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Evolution</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/accessibility.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Accessibility Menu -->
+    <div id="accessibility-menu" class="accessibility-menu">
+        <button class="accessibility-toggle" onclick="toggleAccessibilityMenu()">
+            <i class="fas fa-universal-access"></i>
+        </button>
+        <div class="accessibility-panel" id="accessibility-panel">
+            <h3>Configurações de Acessibilidade</h3>
+            <div class="accessibility-options">
+                <div class="option-group">
+                    <label>Tema:</label>
+                    <button onclick="setTheme('light')">Claro</button>
+                    <button onclick="setTheme('dark')">Escuro</button>
+                    <button onclick="setTheme('auto')">Auto</button>
+                </div>
+                <div class="option-group">
+                    <label for="font-size">Tamanho da Fonte:</label>
+                    <select id="font-size" onchange="changeFontSize(this.value)">
+                        <option value="small">Pequeno</option>
+                        <option value="medium" selected>Médio</option>
+                        <option value="large">Grande</option>
+                        <option value="x-large">Muito Grande</option>
+                    </select>
+                </div>
+                <div class="option-group">
+                    <label>
+                        <input type="checkbox" id="high-contrast" onchange="toggleHighContrast(this.checked)">
+                        Alto Contraste
+                    </label>
+                </div>
+                <div class="option-group">
+                    <label>
+                        <input type="checkbox" id="readable-font" onchange="toggleReadableFont(this.checked)">
+                        Fonte Legível
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="nav-brand">
+                <img src="../assets/images/logo.png" alt="Evolution Logo" class="logo">
+                <span class="brand-text">Evolution</span>
+            </div>
+            
+            <div class="nav-links" id="nav-links">
+                <a href="#dashboard" class="nav-link active">Dashboard</a>
+                <a href="#activities" class="nav-link">Atividades</a>
+                <a href="#posts" class="nav-link">Feed</a>
+                <a href="#schedule" class="nav-link">Agenda</a>
+                <a href="#grades" class="nav-link">Notas</a>
+            </div>
+
+            <div class="nav-actions">
+                <div class="user-menu">
+                    <button class="user-btn" id="user-menu-btn">
+                        <span id="user-name">Carregando...</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="user-dropdown" id="user-dropdown">
+                        <a href="profile.html" class="dropdown-item">
+                            <i class="fas fa-user"></i> Perfil
+                        </a>
+                        <a href="settings.html" class="dropdown-item">
+                            <i class="fas fa-cog"></i> Configurações
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <button onclick="auth.logout()" class="dropdown-item logout-btn">
+                            <i class="fas fa-sign-out-alt"></i> Sair
+                        </button>
+                    </div>
+                </div>
+                <button class="theme-toggle" onclick="toggleTheme()">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="dashboard-container">
+            <!-- Welcome Section -->
+            <section class="welcome-section">
+                <h1 id="welcome-message">Bem-vindo de volta!</h1>
+                <p id="dashboard-description">Aqui está o resumo do seu dia</p>
+            </section>
+
+            <!-- Stats Grid -->
+            <section class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="pending-activities">0</h3>
+                        <p>Atividades Pendentes</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="completed-activities">0</h3>
+                        <p>Entregues</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="unread-notifications">0</h3>
+                        <p>Notificações</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-calendar"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="today-events">0</h3>
+                        <p>Eventos Hoje</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recent Activities & Feed -->
+            <div class="dashboard-content">
+                <!-- Recent Activities -->
+                <section class="dashboard-column">
+                    <h2>Atividades Recentes</h2>
+                    <div class="activities-list" id="activities-list">
+                        <div class="loading">Carregando atividades...</div>
+                    </div>
+                </section>
+
+                <!-- Feed -->
+                <section class="dashboard-column">
+                    <h2>Feed Recente</h2>
+                    <div class="feed-list" id="feed-list">
+                        <div class="loading">Carregando feed...</div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <script src="../js/main.js"></script>
+    <script src="../js/theme.js"></script>
+    <script src="../js/accessibility.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="dashboard.js"></script>
+</body>
+</html>
