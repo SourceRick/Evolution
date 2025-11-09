@@ -2,26 +2,27 @@ import React from 'react';
 
 const Button = ({ 
   children, 
-  variant = 'primary',
-  loading = false,
-  disabled = false,
-  className = '',
+  type = 'button', 
+  className = '', 
+  disabled = false, 
+  onClick,
   ...props 
 }) => {
-  const baseClass = 'btn';
-  const variantClass = variant === 'primary' ? 'btn-primary' : 'btn-outline';
-  
-  const classes = `${baseClass} ${variantClass} ${className}`.trim();
-
   return (
     <button
-      className={classes}
-      disabled={disabled || loading}
+      type={type}
+      className={`
+        px-4 py-2 rounded-md font-medium transition-colors duration-200
+        ${disabled 
+          ? 'bg-gray-400 cursor-not-allowed text-gray-200' 
+          : 'bg-blue-600 hover:bg-blue-700 text-white'
+        }
+        ${className}
+      `}
+      disabled={disabled}
+      onClick={onClick}
       {...props}
     >
-      {loading && (
-        <span style={{ marginRight: '0.5rem' }}>⏳</span>
-      )}
       {children}
     </button>
   );

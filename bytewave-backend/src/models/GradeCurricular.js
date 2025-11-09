@@ -1,31 +1,28 @@
-const { DataTypes } = require('sequelize');
+const sequelize = require('../config/database');
 
-module.exports = (sequelize) => {
-  const GradeCurricular = sequelize.define('GradeCurricular', {
-    id_grade: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true
-    },
-    id_curso: {
-      type: DataTypes.INTEGER,
-      allowNull: false
-    },
-    id_disciplina: {
-      type: DataTypes.INTEGER,
-      allowNull: false
-    },
-    semestre: DataTypes.INTEGER,
-    ordem: DataTypes.INTEGER,
-    pre_requisitos: DataTypes.JSON
-  }, {
-    tableName: 'grade_curricular'
-  });
+// Importar modelos
+const User = require('./User');
 
-  GradeCurricular.associate = function(models) {
-    GradeCurricular.belongsTo(models.Curso, { foreignKey: 'id_curso' });
-    GradeCurricular.belongsTo(models.Disciplina, { foreignKey: 'id_disciplina' });
-  };
+// Associações (se necessário)
+// User.associate = (models) => {
+//   User.belongsTo(models.Aluno, { foreignKey: 'id_aluno' });
+//   User.belongsTo(models.Professor, { foreignKey: 'id_professor' });
+// };
 
-  return GradeCurricular;
+const models = {
+  User
 };
+
+// Sincronizar modelos (apenas em desenvolvimento)
+async function syncModels() {
+  try {
+    await sequelize.sync({ alter: true }); // Use { force: true } apenas em desenvolvimento
+    console.log('✅ Modelos sincronizados com o banco');
+  } catch (error) {
+    console.error('❌ Erro ao sincronizar modelos:', error);
+  }
+}
+
+syncModels();
+
+module.exports = models;

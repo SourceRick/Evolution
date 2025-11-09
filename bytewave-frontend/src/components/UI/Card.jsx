@@ -1,14 +1,8 @@
 import React from 'react';
 
-const Card = ({ 
-  children, 
-  className = '',
-  ...props 
-}) => {
-  const classes = `card ${className}`.trim();
-
+const Card = ({ children, className = '' }) => {
   return (
-    <div className={classes} {...props}>
+    <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 ${className}`}>
       {children}
     </div>
   );

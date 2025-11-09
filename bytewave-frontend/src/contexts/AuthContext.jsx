@@ -1,61 +1,52 @@
-/* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { authService } from '../services';
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { authService } from "../services";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    const initAuth = async () => {
-      const token = localStorage.getItem('token');
-      if (token) {
-        try {
-          const userData = await authService.getMe();
-          setUser(userData);
-          setIsAuthenticated(true);
-        } catch (error) {
-          console.error('Erro ao validar token:', error);
-          authService.logout();
-        }
-      }
-      setLoading(false);
-    };
-
-    initAuth();
+    const token = localStorage.getItem('token');
+    const userData = localStorage.getItem('user');
+    
+    if (token && userData) {
+      setUser(JSON.parse(userData));
+    }
+    setLoading(false);
   }, []);
 
-  const login = async (credentials) => {
+  const login = (userData, token) => {
+    setUser(userData);
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(userData));
+  };
+
+  const logout = async () => {
     try {
-      const result = await authService.login(credentials);
-      setUser(result.user);
-      setIsAuthenticated(true);
-      return { success: true, data: result };
+      await authService.logout();
     } catch (error) {
-      return { success: false, error: error.error || 'Erro no login' };
+      console.error('Erro no logout:', error);
+    } finally {
+      setUser(null);
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
     }
   };
 
-  const logout = () => {
-    authService.logout();
-    setUser(null);
-    setIsAuthenticated(false);
-  };
-
-  const value = {
-    user,
-    loading,
-    isAuthenticated,
-    login,
-    logout,
-    userType: user?.tipo
+  const isAuthenticated = () => {
+    return !!localStorage.getItem('token');
   };
 
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider value={{
+      user,
+      login,
+      logout,
+      isAuthenticated: isAuthenticated(),
+      loading
+    }}>
       {children}
     </AuthContext.Provider>
   );
@@ -64,7 +55,7 @@ export const AuthProvider = ({ children }) => {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth deve ser usado dentro de AuthProvider');
+    throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 };

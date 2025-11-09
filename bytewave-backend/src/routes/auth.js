@@ -6,6 +6,7 @@ const router = express.Router();
 
 // Rotas públicas
 router.post('/login', authController.login);
+router.post('/register', authController.register);
 
 // Rotas protegidas
 router.get('/me', authMiddleware, authController.me);

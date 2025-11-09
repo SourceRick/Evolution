@@ -197,6 +197,18 @@ const Login = () => {
             >
               Não, continuar
             </Button>
+            // No return do Login, adicione isso depois do botão:
+            <div className="text-center mt-4">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Não tem uma conta?{" "}
+                <Link
+                  to="/register"
+                  className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400"
+                >
+                  Cadastre-se
+                </Link>
+              </p>
+            </div>
           </div>
           <p className="text-xs text-blue-600 text-center mt-2">
             Você pode alterar as preferências de acessibilidade a qualquer momento no menu lateral.
